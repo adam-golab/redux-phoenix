@@ -1,0 +1,1 @@
+Restore redux state from previous session like a phoenix from ashes.
