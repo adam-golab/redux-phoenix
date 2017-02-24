@@ -10,12 +10,13 @@
   "module": "lib/redux-phoenix.mjs",
   "jsnext:main": "lib/redux-phoenix.mjs",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "NODE_PATH=src npm run build",
     "prebuild": "rimraf ./lib",
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
+    "build": "NODE_PATH=src rollup -c",
+    "watch": "NODE_PATH=src rollup -c -w",
     "lint": "esw rollup.config.js src --color",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_PATH=src jest",
+    "test:watch": "NODE_PATH=src jest --watch"
   },
   "keywords": [
     "redux",
@@ -27,17 +28,32 @@
   "author": "Adam Gołąb",
   "license": "MIT",
   "devDependencies": {
+    "babel-jest": "19.0.0",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-preset-es2015": "6.22.0",
+    "babel-preset-stage-2": "6.22.0",
     "babelrc-rollup": "3.0.0",
     "eslint": "3.16.0",
     "eslint-config-brainhub": "1.0.1",
     "eslint-watch": "3.0.0",
+    "jest": "19.0.1",
+    "rimraf": "2.6.1",
     "rollup": "0.41.4",
-    "rollup-plugin-babel": "2.7.1"
+    "rollup-plugin-babel": "2.7.1",
+    "sinon": "1.17.7"
   },
   "dependencies": {
     "lodash": "4.17.4",
     "moment": "2.17.1"
+  },
+  "jest": {
+    "testRegex": "/test/.*\\.js$",
+    "moduleDirectories": [
+      "node_modules",
+      "src"
+    ],
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
   }
 }
