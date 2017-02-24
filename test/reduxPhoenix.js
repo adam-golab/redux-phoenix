@@ -34,7 +34,7 @@ describe('persistStore', () => {
       };
       const initialStateToReducer = { state: 'initialState', otherField: 'someData' };
       next.mock.calls[0][0](initialStateToReducer, action);
-      expect(initialReducer.mock.calls[0][0]).toEqual({ ...initialStateToReducer, state: 'persistedState' });
+      expect(initialReducer.mock.calls[0][0]).toEqual({ otherField: 'someData', state: 'persistedState' });
       expect(initialReducer.mock.calls[0][1]).toEqual(action);
     });
 
