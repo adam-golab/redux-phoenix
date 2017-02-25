@@ -126,7 +126,7 @@ persistStore(store, {
       lastValidData: (oldKey, value, state) => ({
         targetKey: 'foo.oldData',
         targetValue: { [oldKey]: value },
-        sourceValue: state.foo.lastValidData',
+        sourceValue: state.foo.lastValidData,
       }),
     },
   },
