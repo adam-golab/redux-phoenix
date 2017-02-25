@@ -18,7 +18,7 @@ describe('persistStore', () => {
       const initialState = {};
       const enhancer = 'enhancer';
       autoRehydrate(next)(initialReducer, initialState, enhancer);
-      expect(next.mock.calls[0][1]).toEqual(initialState);
+      expect(next.mock.calls[0][1]).toBe(initialState);
       expect(next.mock.calls[0][2]).toEqual(enhancer);
     });
 
@@ -35,7 +35,7 @@ describe('persistStore', () => {
       const initialStateToReducer = { state: 'initialState', otherField: 'someData' };
       next.mock.calls[0][0](initialStateToReducer, action);
       expect(initialReducer.mock.calls[0][0]).toEqual({ otherField: 'someData', state: 'persistedState' });
-      expect(initialReducer.mock.calls[0][1]).toEqual(action);
+      expect(initialReducer.mock.calls[0][1]).toBe(action);
     });
 
     it('should return correct reducer working with other actions', () => {
@@ -50,7 +50,7 @@ describe('persistStore', () => {
       const initialStateToReducer = { state: 'initialState', otherField: 'someData' };
       next.mock.calls[0][0](initialStateToReducer, action);
       expect(initialReducer.mock.calls[0][0]).toEqual(initialStateToReducer);
-      expect(initialReducer.mock.calls[0][1]).toEqual(action);
+      expect(initialReducer.mock.calls[0][1]).toBe(action);
     });
   });
 
@@ -74,7 +74,7 @@ describe('persistStore', () => {
       };
       const returnedStore = persistStore(store, { storage });
       return returnedStore.then(returnedStore => {
-        expect(returnedStore).toEqual(store);
+        expect(returnedStore).toBe(store);
       });
     });
 
@@ -93,6 +93,23 @@ describe('persistStore', () => {
           payload: { state: 'persistedState' },
         });
         expect(store.subscribe).toHaveBeenCalled();
+      });
+    });
+
+    it('should trigger store methods dispatch with state from not async storage', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+      };
+      const storage = {
+        getItem: () => JSON.stringify({ persistedState: { state: 'persistedState' } }),
+        setItem: jest.fn(),
+      };
+      return persistStore(store, { storage }).then(store => {
+        expect(store.dispatch.mock.calls[0][0]).toEqual({
+          type: REHYDRATE,
+          payload: { state: 'persistedState' },
+        });
       });
     });
 

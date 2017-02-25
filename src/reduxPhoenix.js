@@ -47,7 +47,7 @@ export default function persistStore(store, {
   map = {},
   disabled = false,
 } = {}) {
-  return storage.getItem(key).then(persistedJson => {
+  return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
       return store;
     }
