@@ -282,7 +282,7 @@ describe('persistStore', () => {
         return {
           targetKey: 'state.newReplacedKey',
           targetValue: `${oldKey} - ${value}`,
-          sourceValue: 'value for target',
+          sourceValue: `value for target - ${state.state.keyToLeave}`,
         };
       }
       const map = { 'state.keyToReplace': mapKeys };
@@ -292,7 +292,7 @@ describe('persistStore', () => {
         expect(JSON.parse(storage.setItem.mock.calls[0][1])).toEqual({
           persistedState: {
             state: {
-              keyToReplace: 'value for target',
+              keyToReplace: 'value for target - other data',
               keyToLeave: 'other data',
               newReplacedKey: 'state.keyToReplace - test data',
             },
