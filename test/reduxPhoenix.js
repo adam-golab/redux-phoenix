@@ -281,7 +281,7 @@ describe('persistStore', () => {
       function mapKeys(oldKey, value, state) {
         return {
           targetKey: 'state.newReplacedKey',
-          targetValue: value,
+          targetValue: `${oldKey} - ${value}`,
           sourceValue: 'value for target',
         };
       }
@@ -294,7 +294,7 @@ describe('persistStore', () => {
             state: {
               keyToReplace: 'value for target',
               keyToLeave: 'other data',
-              newReplacedKey: 'test data',
+              newReplacedKey: 'state.keyToReplace - test data',
             },
           },
           saveDate: moment().valueOf(),
