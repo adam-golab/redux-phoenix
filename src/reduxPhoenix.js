@@ -3,6 +3,13 @@ import moment from 'moment';
 
 export const REHYDRATE = '@@REHYDRATE';
 
+/**
+ * transform state according to passed transformation
+ *
+ * @param {object} map transformation
+ * @param {object} state State from redux
+ * @return {object} Transformed state
+ */
 function transform(map, state) {
   const result = {};
   _.forEach(map, (value, key) => {
@@ -21,6 +28,14 @@ function transform(map, state) {
   return _.merge({}, state, result);
 }
 
+/**
+ * Persist store
+ *
+ * @export
+ * @param {object} store Redux Store
+ * @param {object} config Configuration object
+ * @return {Promise<object>} Persisted Store
+ */
 export default function persistStore(store, {
   key = 'redux',
   whitelist = null,
@@ -63,6 +78,13 @@ export default function persistStore(store, {
   });
 }
 
+/**
+ * Enhancer
+ *
+ * @export
+ * @param {function} next callback
+ * @return {function} enhancer
+ */
 export const autoRehydrate = next => (reducer, initialState, enhancer) => {
   if (typeof initialState === 'function' && typeof enhancer === 'undefined') {
     enhancer = initialState;
