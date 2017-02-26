@@ -71,12 +71,12 @@ That's it. Now your redux state will be stored in localstorage.
  - `import { autoRehydrate } from 'redux-phoenix'`
  - This is a store enhancer that will automatically shallow merge the persisted state for each key.
 
- #### `REHYDRATE`
+#### `REHYDRATE`
 
  - `import { REHYDRATE } from 'redux-phoenix'`
  - Action type which will be dispatched on rehydration.
 
- ## Storage Engines
+## Storage Engines
 
  - **localStorage** (default)
  - **sessionStorage**
