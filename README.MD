@@ -13,7 +13,7 @@ Basic usage requires adding a enhancer to a redux application:
 ```javascript
 // configureStore.js
 import { createStore, compose } from 'redux';
-import { autoRehydrate } from 'react-phoenix';
+import { autoRehydrate } from 'redux-phoenix';
 
 const store = createStore(reducer, initialState, compose(
   applyMiddleware(...middlewares),
