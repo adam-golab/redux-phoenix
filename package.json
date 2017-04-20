@@ -4,7 +4,7 @@
   "description": "Persist redux state",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brainhub-adam/redux-phoenix"
+    "url": "https://github.com/adam-golab/redux-phoenix"
   },
   "main": "lib/redux-phoenix.js",
   "module": "lib/redux-phoenix.mjs",

@@ -4,7 +4,7 @@ Restore redux state from previous sessions like a phoenix from ashes.
 
 `npm i --save redux-phoenix`
 
-[![CircleCI](https://circleci.com/gh/brainhub-adam/redux-phoenix.svg?style=svg)](https://circleci.com/gh/brainhub-adam/redux-phoenix)
+[![CircleCI](https://circleci.com/gh/adam-golab/redux-phoenix.svg?style=svg)](https://circleci.com/gh/adam-golab/redux-phoenix)
 
 ## Basic usage
 
@@ -56,14 +56,14 @@ That's it. Now your redux state will be stored in localstorage.
      - **blacklist**: *Array\<string\>* (default: **null**) keys to ignore, `null` means no keys will be omitted.
        It may be nested keys and overwrite whitelisted keys.
      - **storage**: *object* (default: **window.localStorage**) a
-       [conforming](https://github.com/brainhub-adam/redux-phoenix#storage-engines) storage engine.
+       [conforming](https://github.com/adam-golab/redux-phoenix#storage-engines) storage engine.
      - **expireDate**: *[number, string]* (default: **null**) duration validity of the stored state. For example:
        `expireDate: [2, 'hours']` restore state from storage only when it is not older than 2 hours.
      - **serialize**: *function* (default: **JSON.stringify**) a function which takes object with redux state and
        returns string which can be stored into storage.
      - **deserialize**: *function* (default: **JSON.parse**) a function which takes string from storage and returns
        object with redux state.
-     - **map**: *object* (default: **{}**) a [mapping transformation](https://github.com/brainhub-adam/redux-phoenix#transformation) wich will be applied to state before saving.
+     - **map**: *object* (default: **{}**) a [mapping transformation](https://github.com/adam-golab/redux-phoenix#transformation) wich will be applied to state before saving.
      - **disabled**: *boolean* (default: **false**) disable persisting state.
 
 #### `autoRehydrate`
@@ -80,7 +80,7 @@ That's it. Now your redux state will be stored in localstorage.
 
  - **localStorage** (default)
  - **sessionStorage**
- - **[localForage](https://github.com/mozilla/localForage)** (recommended)
+ - **[localForage](https://github.com/mozilla/localForage)**
  - **[AsyncStorage](http://facebook.github.io/react-native/docs/asyncstorage.html#content)**
  - **custom** any conforming storage api implementing the following methods: `setItem`, `getItem` which returns value or
    a Promise resolved to value.
