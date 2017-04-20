@@ -1,6 +1,6 @@
 {
   "name": "redux-phoenix",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Persist redux state",
   "repository": {
     "type": "git",
