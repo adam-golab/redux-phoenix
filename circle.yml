@@ -8,6 +8,7 @@ machine:
 
   environment:
     NODE_ENV: 'production'
+    CODECLIMATE_REPO_TOKEN: 00834bed53473ce3412fa40137ddaacd839464b4d5ce346196a72af240db3f45
 
 dependencies:
 
