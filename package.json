@@ -1,13 +1,13 @@
 {
   "name": "redux-phoenix",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Persist redux state",
   "repository": {
     "type": "git",
     "url": "https://github.com/adam-golab/redux-phoenix"
   },
   "main": "lib/redux-phoenix.js",
-  "module": "lib/redux-phoenix.mjs",
+  "module": "lib/redux-phoenix.js",
   "jsnext:main": "lib/redux-phoenix.mjs",
   "scripts": {
     "prepublish": "NODE_PATH=src npm run build",
