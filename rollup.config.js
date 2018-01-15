@@ -20,7 +20,7 @@ export default {
       dest: pkg.main,
       format: 'umd',
       moduleName: 'reduxPhoenix',
-      sourceMap: true,
+      sourceMap: false,
     },
     {
       dest: pkg.module,
