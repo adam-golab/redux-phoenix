@@ -1,13 +1,13 @@
 {
   "name": "redux-phoenix",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Persist redux state",
   "repository": {
     "type": "git",
     "url": "https://github.com/adam-golab/redux-phoenix"
   },
   "main": "lib/redux-phoenix.js",
-  "module": "lib/redux-phoenix.js",
+  "module": "lib/redux-phoenix.mjs",
   "jsnext:main": "lib/redux-phoenix.mjs",
   "scripts": {
     "prepublish": "NODE_PATH=src npm run build",
@@ -30,20 +30,21 @@
   "devDependencies": {
     "babel-jest": "19.0.0",
     "babel-plugin-external-helpers": "6.22.0",
-    "babel-preset-es2015": "6.22.0",
+    "babel-preset-env": "1.6.1",
+    "babel-preset-stage-3": "6.24.1",
     "babelrc-rollup": "3.0.0",
     "eslint": "3.16.0",
     "eslint-config-brainhub": "1.0.1",
     "eslint-watch": "3.0.0",
     "jest": "19.0.1",
     "rimraf": "2.6.1",
-    "rollup": "0.41.4",
+    "rollup": "0.54.0",
     "rollup-plugin-babel": "2.7.1",
     "sinon": "1.17.7"
   },
   "dependencies": {
-    "lodash": "4.17.4",
-    "moment": "2.17.1"
+    "lodash": "^4.17.4",
+    "moment": "^2.20.1"
   },
   "jest": {
     "testRegex": "/test/.*\\.js$",

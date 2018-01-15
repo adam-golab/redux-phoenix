@@ -5,27 +5,30 @@ const pkg = require('./package.json');
 const external = Object.keys(pkg.dependencies);
 
 export default {
-  entry: 'src/reduxPhoenix.js',
+  input: 'src/reduxPhoenix.js',
   plugins: [
-    babel(babelrc()),
+    babel(babelrc({
+      addModuleOptions: false,
+    })),
   ],
-  external: external,
+  external,
   exports: 'named',
   globals: {
     lodash: '_',
-    moment: 'moment',
+    debug: 'debug',
   },
-  targets: [
+  output: [
     {
-      dest: pkg.main,
+      file: pkg.main,
       format: 'umd',
-      moduleName: 'reduxPhoenix',
-      sourceMap: false,
+      name: 'redux-phoenix',
+      sourcemap: true,
+      exports: 'named',
     },
     {
-      dest: pkg.module,
+      file: pkg.module,
       format: 'es',
-      sourceMap: true,
+      sourcemap: true,
     },
   ],
 };
