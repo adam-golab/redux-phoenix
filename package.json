@@ -7,8 +7,6 @@
     "url": "https://github.com/adam-golab/redux-phoenix"
   },
   "main": "lib/redux-phoenix.js",
-  "module": "lib/redux-phoenix.mjs",
-  "jsnext:main": "lib/redux-phoenix.mjs",
   "scripts": {
     "prepublish": "NODE_PATH=src npm run build",
     "prebuild": "rimraf ./lib",
