@@ -1,6 +1,6 @@
 {
   "name": "redux-phoenix",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Persist redux state",
   "repository": {
     "type": "git",
@@ -13,8 +13,8 @@
     "build": "NODE_PATH=src rollup -c",
     "watch": "NODE_PATH=src rollup -c -w",
     "lint": "esw rollup.config.js src --color",
-    "test": "NODE_PATH=src jest",
-    "test:watch": "NODE_PATH=src jest --watch"
+    "test": "NODE_PATH=src jest --no-cache",
+    "test:watch": "NODE_PATH=src jest --watch --no-cache"
   },
   "keywords": [
     "redux",
@@ -51,7 +51,7 @@
       "src"
     ],
     "transform": {
-      "^.+\\.jsx?$": "babel-jest"
+      "^.+\\.js?$": "<rootDir>/jest.transform.js"
     }
   }
 }
