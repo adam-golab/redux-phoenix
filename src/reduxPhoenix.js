@@ -72,7 +72,7 @@ export default function persistStore(store, {
         ? _.omit(_.pick(state, whitelist), blacklist)
         : _.omit(state, blacklist);
 
-        storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
+      storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
     });
     return store;
   });
