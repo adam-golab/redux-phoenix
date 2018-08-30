@@ -74,41 +74,24 @@ export default function persistStore(
       type: REHYDRATE,
       payload: persistedStateToMerge,
     });
+    const saveState = () => {
+      const state = transform(map, store.getState());
+      const subset = whitelist
+        ? _.omit(_.pick(state, whitelist), blacklist)
+        : _.omit(state, blacklist);
+      storage.setItem(
+        key,
+        serialize({ persistedState: subset, saveDate: moment().valueOf() }),
+      );
+    };
     const throttledSubscribe = _.throttle(saveState, throttle, {
       trailing: true,
     });
-    store.subscribe(() =>
-      throttledSubscribe(
-        store,
-        map,
-        whitelist,
-        blacklist,
-        storage,
-        key,
-        serialize,
-      ),
-    );
+    store.subscribe(() => throttledSubscribe());
     return store;
   });
 }
 
-/**
- * Save the state
- *
- * @export
- * @param {function} next callback
- * @return {function} enhancer
- */
-function saveState(store, map, whitelist, blacklist, storage, key, serialize) {
-  const state = transform(map, store.getState());
-  const subset = whitelist
-    ? _.omit(_.pick(state, whitelist), blacklist)
-    : _.omit(state, blacklist);
-  storage.setItem(
-    key,
-    serialize({ persistedState: subset, saveDate: moment().valueOf() }),
-  );
-}
 /**
  * Enhancer
  *
