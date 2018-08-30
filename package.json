@@ -8,13 +8,13 @@
   },
   "main": "lib/redux-phoenix.js",
   "scripts": {
-    "prepublish": "NODE_PATH=src npm run build",
+    "prepublish": "npm run build",
     "prebuild": "rimraf ./lib",
-    "build": "NODE_PATH=src rollup -c",
-    "watch": "NODE_PATH=src rollup -c -w",
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
     "lint": "esw rollup.config.js src --color",
-    "test": "NODE_PATH=src jest --no-cache",
-    "test:watch": "NODE_PATH=src jest --watch --no-cache"
+    "test": "jest --no-cache",
+    "test:watch": "jest --watch --no-cache"
   },
   "keywords": [
     "redux",

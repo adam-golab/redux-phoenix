@@ -24,9 +24,15 @@ describe('persistStore', () => {
         type: REHYDRATE,
         payload: { state: 'persistedState' },
       };
-      const initialStateToReducer = { state: 'initialState', otherField: 'someData' };
+      const initialStateToReducer = {
+        state: 'initialState',
+        otherField: 'someData',
+      };
       next.mock.calls[0][0](initialStateToReducer, action);
-      expect(initialReducer.mock.calls[0][0]).toEqual({ otherField: 'someData', state: 'persistedState' });
+      expect(initialReducer.mock.calls[0][0]).toEqual({
+        otherField: 'someData',
+        state: 'persistedState',
+      });
       expect(initialReducer.mock.calls[0][1]).toBe(action);
     });
 
@@ -39,7 +45,10 @@ describe('persistStore', () => {
       const action = {
         type: 'OTHER_ACTION',
       };
-      const initialStateToReducer = { state: 'initialState', otherField: 'someData' };
+      const initialStateToReducer = {
+        state: 'initialState',
+        otherField: 'someData',
+      };
       next.mock.calls[0][0](initialStateToReducer, action);
       expect(initialReducer.mock.calls[0][0]).toEqual(initialStateToReducer);
       expect(initialReducer.mock.calls[0][1]).toBe(action);
@@ -61,7 +70,10 @@ describe('persistStore', () => {
         subscribe: jest.fn(),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       const returnedStore = persistStore(store, { storage });
@@ -76,7 +88,10 @@ describe('persistStore', () => {
         subscribe: jest.fn(),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       return persistStore(store, { storage }).then(store => {
@@ -94,7 +109,8 @@ describe('persistStore', () => {
         subscribe: jest.fn(),
       };
       const storage = {
-        getItem: () => JSON.stringify({ persistedState: { state: 'persistedState' } }),
+        getItem: () =>
+          JSON.stringify({ persistedState: { state: 'persistedState' } }),
         setItem: jest.fn(),
       };
       return persistStore(store, { storage }).then(store => {
@@ -105,14 +121,17 @@ describe('persistStore', () => {
       });
     });
 
-     it('should save state after any action', () => {
+    it('should save state after any action', () => {
       const store = {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
         getState: () => ({ actualState: 'actualState' }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       return persistStore(store, { storage }).then(store => {
@@ -134,7 +153,10 @@ describe('persistStore', () => {
         getState: () => ({ actualState: 'actualState' }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       return persistStore(store, { storage, key: 'testKey' }).then(store => {
@@ -154,15 +176,25 @@ describe('persistStore', () => {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
         getState: () => ({
-          whitelisted: { whitelistedField: 'should be saved', blacklistedField: 'should not be saved' },
+          whitelisted: {
+            whitelistedField: 'should be saved',
+            blacklistedField: 'should not be saved',
+          },
           blacklisted: { field: 'should not be saved' },
         }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
-      return persistStore(store, { storage, whitelist: ['whitelisted'], blacklist: ['whitelisted.blacklistedField'] }).then(store => {
+      return persistStore(store, {
+        storage,
+        whitelist: ['whitelisted'],
+        blacklist: ['whitelisted.blacklistedField'],
+      }).then(store => {
         store.subscribe.mock.calls[0][0]();
         expect(storage.setItem.mock.calls[0][0]).toEqual('redux');
         expect(JSON.parse(storage.setItem.mock.calls[0][1])).toEqual({
@@ -181,17 +213,25 @@ describe('persistStore', () => {
         getState: () => ({}),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' }, saveDate: 0 })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({
+              persistedState: { state: 'persistedState' },
+              saveDate: 0,
+            }),
+          ),
         setItem: jest.fn(),
       };
       clock.tick(2000);
-      return persistStore(store, { storage, expireDate: [1, 'seconds'] }).then(store => {
-        expect(store.dispatch.mock.calls[0][0]).toEqual({
-          type: REHYDRATE,
-          payload: {},
-        });
-        expect(store.subscribe).toHaveBeenCalled();
-      });
+      return persistStore(store, { storage, expireDate: [1, 'seconds'] }).then(
+        store => {
+          expect(store.dispatch.mock.calls[0][0]).toEqual({
+            type: REHYDRATE,
+            payload: {},
+          });
+          expect(store.subscribe).toHaveBeenCalled();
+        },
+      );
     });
 
     it('should use passed serialize and deserialize function', () => {
@@ -201,7 +241,10 @@ describe('persistStore', () => {
         getState: () => ({ actualState: 'actualState' }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       return persistStore(store, {
@@ -223,17 +266,19 @@ describe('persistStore', () => {
       const store = {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
-        getState: () => (
-          { state:
-            {
-              keyToReplace: 'test data',
-              keyToLeave: 'other data',
-              newReplacedKey: 'old data',
-            },
-          }),
+        getState: () => ({
+          state: {
+            keyToReplace: 'test data',
+            keyToLeave: 'other data',
+            newReplacedKey: 'old data',
+          },
+        }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       const map = { 'state.keyToReplace': 'state.newReplacedKey' };
@@ -257,17 +302,19 @@ describe('persistStore', () => {
       const store = {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
-        getState: () => (
-          { state:
-            {
-              keyToReplace: 'test data',
-              keyToLeave: 'other data',
-              newReplacedKey: 'old data',
-            },
-          }),
+        getState: () => ({
+          state: {
+            keyToReplace: 'test data',
+            keyToLeave: 'other data',
+            newReplacedKey: 'old data',
+          },
+        }),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       function mapKeys(oldKey, value, state) {
@@ -301,13 +348,59 @@ describe('persistStore', () => {
         getState: () => ({}),
       };
       const storage = {
-        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
         setItem: jest.fn(),
       };
       return persistStore(store, { storage, disabled: true }).then(store => {
         expect(store.dispatch).not.toHaveBeenCalled();
         expect(store.subscribe).not.toHaveBeenCalled();
         expect(storage.setItem).not.toHaveBeenCalled();
+      });
+    });
+    it('should call setItem once if if two dispatch is called in the throttle time', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({}),
+      };
+      const storage = {
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
+        setItem: jest.fn(),
+      };
+      return persistStore(store, { storage, throttle: 100 }).then(store => {
+        store.dispatch();
+        store.dispatch();
+        setTimeout(() => {
+          expect(storage.setItem).toHaveBeenCalledTimes(1);
+        }, 200);
+      });
+    });
+    it('should call setItem twice if if two dispatch is called outside the throttle time', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({}),
+      };
+      const storage = {
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
+        setItem: jest.fn(),
+      };
+      return persistStore(store, { storage, throttle: 100 }).then(store => {
+        store.dispatch();
+        setTimeout(() => {
+          expect(storage.setItem).toHaveBeenCalledTimes(1);
+          store.dispatch();
+          expect(storage.setItem).toHaveBeenCalledTimes(2);
+        }, 200);
       });
     });
   });

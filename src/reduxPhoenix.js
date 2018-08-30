@@ -36,17 +36,21 @@ function transform(map, state) {
  * @param {object} config Configuration object
  * @return {Promise<object>} Persisted Store
  */
-export default function persistStore(store, {
-  key = 'redux',
-  whitelist = null,
-  blacklist = null,
-  storage = window.localStorage,
-  expireDate = null,
-  serialize = JSON.stringify,
-  deserialize = JSON.parse,
-  map = {},
-  disabled = false,
-} = {}) {
+export default function persistStore(
+  store,
+  {
+    key = 'redux',
+    whitelist = null,
+    blacklist = null,
+    storage = window.localStorage,
+    expireDate = null,
+    serialize = JSON.stringify,
+    deserialize = JSON.parse,
+    map = {},
+    throttle = 0,
+    disabled = false,
+  } = {},
+) {
   return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
       return store;
@@ -54,7 +58,12 @@ export default function persistStore(store, {
     const persistedValue = deserialize(persistedJson);
     const { persistedState, saveDate } = persistedValue || {};
     let state = persistedState;
-    if (expireDate && moment(saveDate).add(...expireDate).isBefore(moment())) {
+    if (
+      expireDate &&
+      moment(saveDate)
+        .add(...expireDate)
+        .isBefore(moment())
+    ) {
       state = {};
     }
     const persistedStateToMerge = whitelist
@@ -65,19 +74,41 @@ export default function persistStore(store, {
       type: REHYDRATE,
       payload: persistedStateToMerge,
     });
-
-    store.subscribe(function() {
-      const state = transform(map, store.getState());
-      const subset = whitelist
-        ? _.omit(_.pick(state, whitelist), blacklist)
-        : _.omit(state, blacklist);
-
-      storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
+    const throttledSubscribe = _.throttle(saveState, throttle, {
+      trailing: true,
     });
+    store.subscribe(() =>
+      throttledSubscribe(
+        store,
+        map,
+        whitelist,
+        blacklist,
+        storage,
+        key,
+        serialize,
+      ),
+    );
     return store;
   });
 }
 
+/**
+ * Save the state
+ *
+ * @export
+ * @param {function} next callback
+ * @return {function} enhancer
+ */
+function saveState(store, map, whitelist, blacklist, storage, key, serialize) {
+  const state = transform(map, store.getState());
+  const subset = whitelist
+    ? _.omit(_.pick(state, whitelist), blacklist)
+    : _.omit(state, blacklist);
+  storage.setItem(
+    key,
+    serialize({ persistedState: subset, saveDate: moment().valueOf() }),
+  );
+}
 /**
  * Enhancer
  *
