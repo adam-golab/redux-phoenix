@@ -36,21 +36,18 @@ function transform(map, state) {
  * @param {object} config Configuration object
  * @return {Promise<object>} Persisted Store
  */
-export default function persistStore(
-  store,
-  {
-    key = 'redux',
-    whitelist = null,
-    blacklist = null,
-    storage = window.localStorage,
-    expireDate = null,
-    serialize = JSON.stringify,
-    deserialize = JSON.parse,
-    map = {},
-    throttle = 0,
-    disabled = false,
-  } = {},
-) {
+export default function persistStore(store, {
+  key = 'redux',
+  whitelist = null,
+  blacklist = null,
+  storage = window.localStorage,
+  expireDate = null,
+  serialize = JSON.stringify,
+  deserialize = JSON.parse,
+  map = {},
+  disabled = false,
+  throttle = 0,
+} = {}) {
   return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
       return store;
@@ -58,12 +55,7 @@ export default function persistStore(
     const persistedValue = deserialize(persistedJson);
     const { persistedState, saveDate } = persistedValue || {};
     let state = persistedState;
-    if (
-      expireDate &&
-      moment(saveDate)
-        .add(...expireDate)
-        .isBefore(moment())
-    ) {
+    if (expireDate && moment(saveDate).add(...expireDate).isBefore(moment())) {
       state = {};
     }
     const persistedStateToMerge = whitelist
@@ -74,20 +66,20 @@ export default function persistStore(
       type: REHYDRATE,
       payload: persistedStateToMerge,
     });
+
     const saveState = () => {
       const state = transform(map, store.getState());
       const subset = whitelist
         ? _.omit(_.pick(state, whitelist), blacklist)
         : _.omit(state, blacklist);
-      storage.setItem(
-        key,
-        serialize({ persistedState: subset, saveDate: moment().valueOf() }),
-      );
+
+      storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
     };
+
     const throttledSubscribe = _.throttle(saveState, throttle, {
       trailing: true,
     });
-    store.subscribe(() => throttledSubscribe());
+    store.subscribe(throttledSubscribe);
     return store;
   });
 }
