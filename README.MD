@@ -158,6 +158,6 @@ This can be useful to lower the charge of an external API.
 persistStore(store, { 
     throttle : 1000 
   }
-); // The state will be save maximum on time in 1000 ms
+); // The state will be save maximum one time / 1000 ms
 
 ```
