@@ -147,3 +147,17 @@ this will persist object:
 ```
 
 so that is possible to modify state to much complicated form.
+
+## Throttle
+
+When the throttle is defined, the state will not be saved at every action dispatched in the time set. It will take the state after the last action of this period of time.
+This can be useful to lower the charge of an external API.
+
+```javascript
+
+persistStore(store, { 
+    throttle : 1000 
+  }
+); // The state will be save maximum on time in 1000 ms
+
+```
