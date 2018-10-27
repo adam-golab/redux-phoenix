@@ -65,6 +65,7 @@ That's it. Now your redux state will be stored in localstorage.
        object with redux state.
      - **map**: *object* (default: **{}**) a [mapping transformation](https://github.com/adam-golab/redux-phoenix#transformation) wich will be applied to state before saving.
      - **disabled**: *boolean* (default: **false**) disable persisting state.
+     - **throttle**: *number* (default: **0**) number of milisecond to wait between persisting the state, for values greater than 0 it uses [throttled](https://github.com/adam-golab/redux-phoenix#throttle) version.
 
 #### `autoRehydrate`
 
@@ -155,8 +156,8 @@ This can be useful to lower the charge of an external API.
 
 ```javascript
 
-persistStore(store, { 
-    throttle : 1000 
+persistStore(store, {
+    throttle : 1000,
   }
 ); // The state will be save maximum one time / 1000 ms
 

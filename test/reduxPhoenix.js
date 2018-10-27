@@ -46,7 +46,7 @@ describe('persistStore', () => {
     });
   });
 
-  describe('persistStore', function () {
+  describe('persistStore', () => {
     let clock;
     beforeAll(() => {
       clock = sinon.useFakeTimers();

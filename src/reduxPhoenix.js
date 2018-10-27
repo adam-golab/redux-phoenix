@@ -79,7 +79,7 @@ export default function persistStore(store, {
     const throttledSubscribe = _.throttle(saveState, throttle, {
       trailing: true,
     });
-    store.subscribe(throttledSubscribe);
+    store.subscribe(throttle > 0 ? throttledSubscribe : saveState);
     return store;
   });
 }
