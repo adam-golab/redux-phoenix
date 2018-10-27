@@ -46,6 +46,7 @@ export default function persistStore(store, {
   deserialize = JSON.parse,
   map = {},
   disabled = false,
+  throttle = 0,
 } = {}) {
   return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
@@ -66,14 +67,19 @@ export default function persistStore(store, {
       payload: persistedStateToMerge,
     });
 
-    store.subscribe(function() {
+    const saveState = () => {
       const state = transform(map, store.getState());
       const subset = whitelist
         ? _.omit(_.pick(state, whitelist), blacklist)
         : _.omit(state, blacklist);
 
       storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
+    };
+
+    const throttledSubscribe = _.throttle(saveState, throttle, {
+      trailing: true,
     });
+    store.subscribe(throttle > 0 ? throttledSubscribe : saveState);
     return store;
   });
 }

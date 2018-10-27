@@ -46,7 +46,7 @@ describe('persistStore', () => {
     });
   });
 
-  describe('persistStore', function() {
+  describe('persistStore', () => {
     let clock;
     beforeAll(() => {
       clock = sinon.useFakeTimers();
@@ -105,7 +105,7 @@ describe('persistStore', () => {
       });
     });
 
-     it('should save state after any action', () => {
+    it('should save state after any action', () => {
       const store = {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
@@ -224,7 +224,8 @@ describe('persistStore', () => {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
         getState: () => (
-          { state:
+          {
+            state:
             {
               keyToReplace: 'test data',
               keyToLeave: 'other data',
@@ -258,7 +259,8 @@ describe('persistStore', () => {
         dispatch: jest.fn(),
         subscribe: jest.fn(),
         getState: () => (
-          { state:
+          {
+            state:
             {
               keyToReplace: 'test data',
               keyToLeave: 'other data',
@@ -308,6 +310,50 @@ describe('persistStore', () => {
         expect(store.dispatch).not.toHaveBeenCalled();
         expect(store.subscribe).not.toHaveBeenCalled();
         expect(storage.setItem).not.toHaveBeenCalled();
+      });
+    });
+
+    it('should call setItem once if if two dispatch is called in the throttle time', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({}),
+      };
+      const storage = {
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
+        setItem: jest.fn(),
+      };
+      return persistStore(store, { storage, throttle: 100 }).then(store => {
+        store.dispatch();
+        store.dispatch();
+        setTimeout(() => {
+          expect(storage.setItem).toHaveBeenCalledTimes(1);
+        }, 200);
+      });
+    });
+    it('should call setItem twice if if two dispatch is called outside the throttle time', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({}),
+      };
+      const storage = {
+        getItem: () =>
+          Promise.resolve(
+            JSON.stringify({ persistedState: { state: 'persistedState' } }),
+          ),
+        setItem: jest.fn(),
+      };
+      return persistStore(store, { storage, throttle: 100 }).then(store => {
+        store.dispatch();
+        setTimeout(() => {
+          expect(storage.setItem).toHaveBeenCalledTimes(1);
+          store.dispatch();
+          expect(storage.setItem).toHaveBeenCalledTimes(2);
+        }, 200);
       });
     });
   });
