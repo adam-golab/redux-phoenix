@@ -29,6 +29,43 @@ function transform(map, state) {
 }
 
 /**
+ * get functions from migrations list that should be run before rehydrating
+ *
+ * @param {array} appliedMigrations names of migrations that has been succesfully applied
+ * @param {array} migrations list of migrations that should be run on old versions of state
+ * @return {array} array of functions from migrations that should be run
+ */
+export function getMigrationsToRun(appliedMigrations = [], migrations) {
+  const migrationsToApply = migrations.filter(migration => migration.up);
+
+  let theSameIndex = 0;
+  let iterate = true;
+
+  while (iterate && theSameIndex < appliedMigrations.length) {
+    if (migrationsToApply[theSameIndex] && migrationsToApply[theSameIndex].name === appliedMigrations[theSameIndex]) {
+      theSameIndex++;
+    } else {
+      iterate = false;
+    }
+  }
+
+  const migrationsToRun = [];
+
+  for (let index = appliedMigrations.length - 1; index >= theSameIndex; index--) {
+    const migrationToRevert = migrations.find(({ name }) => name === appliedMigrations[index]);
+    if (migrationToRevert && migrationToRevert.down) {
+      migrationsToRun.push(migrationToRevert.down);
+    }
+  }
+
+  for (let index = theSameIndex; index < migrationsToApply.length; index++) {
+    migrationsToRun.push(migrationsToApply[index].up);
+  }
+
+  return migrationsToRun;
+}
+
+/**
  * Persist store
  *
  * @export
@@ -47,17 +84,24 @@ export default function persistStore(store, {
   map = {},
   disabled = false,
   throttle = 0,
+  migrations = null,
 } = {}) {
   return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
       return store;
     }
     const persistedValue = deserialize(persistedJson);
-    const { persistedState, saveDate } = persistedValue || {};
+    const { persistedState, saveDate, migrations: appliedMigrations } = persistedValue || {};
     let state = persistedState;
     if (expireDate && moment(saveDate).add(...expireDate).isBefore(moment())) {
-      state = {};
+      state = null;
     }
+
+    if (state && migrations) {
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+      state = migrationsToRun.reduce((state, migration) => migration(state), state);
+    }
+
     const persistedStateToMerge = whitelist
       ? _.omit(_.pick(state, whitelist), blacklist)
       : _.omit(state, blacklist);
