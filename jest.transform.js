@@ -1,10 +1,9 @@
 module.exports = require('babel-jest').createTransformer({
   presets: [
-    ['env', {
+    ['@babel/preset-env', {
       targets: {
         browsers: ['last 2 versions'],
       },
     }],
-    'stage-3',
   ],
 });
