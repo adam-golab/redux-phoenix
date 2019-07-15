@@ -10,14 +10,12 @@ export default {
   plugins: [
     babel(babelrc({
       addModuleOptions: false,
+      addExternalHelpersPlugin: false,
+      exclude: /node_modules/,
+      runtimeHelpers: false,
     })),
   ],
   external,
-  exports: 'named',
-  globals: {
-    lodash: '_',
-    debug: 'debug',
-  },
   output: [
     {
       file: pkg.main,
@@ -25,6 +23,11 @@ export default {
       name: 'redux-phoenix',
       sourcemap: true,
       exports: 'named',
+      globals: {
+        debug: 'debug',
+        lodash: '_',
+        moment: 'moment',
+      },
     },
   ],
 };

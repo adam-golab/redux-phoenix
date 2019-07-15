@@ -6,6 +6,9 @@
   "settings": {
     "import/resolve": {
       "moduleDirectory": ["node_modules", "src"]
+    },
+    "react": {
+      "version": "latest"
     }
   }
 }
