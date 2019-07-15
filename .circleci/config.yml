@@ -1,8 +1,10 @@
 version: 2
 jobs:
   build:
+    environment:
+      CC_TEST_REPORTER_ID: 00834bed53473ce3412fa40137ddaacd839464b4d5ce346196a72af240db3f45
     docker:
-      - image: node:12-slim
+      - image: node:12
     steps:
       - checkout
       - restore_cache:
