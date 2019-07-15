@@ -5,6 +5,8 @@ Restore redux state from previous sessions like a phoenix from ashes.
 `npm i --save redux-phoenix`
 
 [![CircleCI](https://circleci.com/gh/adam-golab/redux-phoenix.svg?style=svg)](https://circleci.com/gh/adam-golab/redux-phoenix)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ccd7344d371177735562/maintainability)](https://codeclimate.com/github/adam-golab/redux-phoenix/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ccd7344d371177735562/test_coverage)](https://codeclimate.com/github/adam-golab/redux-phoenix/test_coverage)
 
 ## Basic usage
 
