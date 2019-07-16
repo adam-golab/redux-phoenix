@@ -29,6 +29,27 @@ function transform(map, state) {
 }
 
 /**
+ * get number of migrations that have been previously applied
+ *
+ * @param {array} appliedMigrations names of migrations that has been succesfully applied
+ * @param {*} migrationsToApply list of migrations that should be run
+ * @return {number} number of migrations that have been previously applied
+ */
+function getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply) {
+  const { index } = appliedMigrations.reduce((result, migrationName, index) => {
+    if (result.isDifferent) {
+      return result;
+    }
+    if (migrationsToApply[index] && migrationsToApply[index].name === migrationName) {
+      return { index: result.index + 1, isDifferent: false };
+    }
+    return { index: result.index, isDifferent: true };
+  }, { index: 0, isDifferent: false });
+
+  return index;
+}
+
+/**
  * get functions from migrations list that should be run before rehydrating
  *
  * @param {array} appliedMigrations names of migrations that has been succesfully applied
@@ -38,31 +59,20 @@ function transform(map, state) {
 export function getMigrationsToRun(appliedMigrations = [], migrations) {
   const migrationsToApply = migrations.filter(migration => migration.up);
 
-  let theSameIndex = 0;
-  let iterate = true;
+  const numberOfAppliedMigrations = getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply);
 
-  while (iterate && theSameIndex < appliedMigrations.length) {
-    if (migrationsToApply[theSameIndex] && migrationsToApply[theSameIndex].name === appliedMigrations[theSameIndex]) {
-      theSameIndex++;
-    } else {
-      iterate = false;
-    }
-  }
+  const migrationsToRevert = appliedMigrations
+    .slice(numberOfAppliedMigrations)
+    .reverse()
+    .map(migrationName => migrations.find(({ name }) => name === migrationName))
+    .filter(migration => migration.down)
+    .map(migration => migration.down);
 
-  const migrationsToRun = [];
+  const migrationsToRun = migrationsToApply
+    .slice(numberOfAppliedMigrations)
+    .map(migration => migration.up);
 
-  for (let index = appliedMigrations.length - 1; index >= theSameIndex; index--) {
-    const migrationToRevert = migrations.find(({ name }) => name === appliedMigrations[index]);
-    if (migrationToRevert && migrationToRevert.down) {
-      migrationsToRun.push(migrationToRevert.down);
-    }
-  }
-
-  for (let index = theSameIndex; index < migrationsToApply.length; index++) {
-    migrationsToRun.push(migrationsToApply[index].up);
-  }
-
-  return migrationsToRun;
+  return migrationsToRevert.concat(migrationsToRun);
 }
 
 /**
