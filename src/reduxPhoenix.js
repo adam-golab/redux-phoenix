@@ -57,15 +57,15 @@ function getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply) {
  * @return {array} array of functions from migrations that should be run
  */
 export function getMigrationsToRun(appliedMigrations = [], migrations) {
-  const migrationsToApply = migrations.filter(migration => migration.up);
+  const migrationsToApply = migrations.filter(migration => migration.up && migration.name);
 
   const numberOfAppliedMigrations = getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply);
 
   const migrationsToRevert = appliedMigrations
     .slice(numberOfAppliedMigrations)
     .reverse()
-    .map(migrationName => migrations.find(({ name }) => name === migrationName))
-    .filter(migration => migration.down)
+    .map(migrationName => migrations.find(({ name }) => name === migrationName) || {})
+    .filter(migration => migration.down && migration.name)
     .map(migration => migration.down);
 
   const migrationsToRun = migrationsToApply
@@ -128,7 +128,7 @@ export default function persistStore(store, {
         : _.omit(state, blacklist);
 
       const appliedMigrations = migrations
-        ? migrations.filter(migration => migration.up).map(migration => migration.name)
+        ? migrations.filter(migration => migration.up && migration.name).map(migration => migration.name)
         : undefined; // eslint-disable-line no-undefined
 
       storage.setItem(key, serialize({
