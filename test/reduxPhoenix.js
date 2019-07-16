@@ -387,6 +387,46 @@ describe('persistStore', () => {
         });
       });
     });
+
+    it('should save applied migrations', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({ actualState: 'actualState' }),
+      };
+      const storage = {
+        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        setItem: jest.fn(),
+      };
+      const migrations = [
+        {
+          name: '001-initial-migration',
+          up: state => state,
+          down: state => state,
+        },
+        {
+          name: '002-reverted',
+          down: state => state,
+        },
+        {
+          name: '003-new-migration',
+          up: state => state,
+          down: state => state,
+        },
+      ];
+
+      return persistStore(store, { storage, migrations }).then(store => {
+        store.subscribe.mock.calls[0][0]();
+        expect(storage.setItem.mock.calls[0][0]).toEqual('redux');
+        expect(JSON.parse(storage.setItem.mock.calls[0][1])).toEqual({
+          persistedState: {
+            actualState: 'actualState',
+          },
+          saveDate: moment().valueOf(),
+          migrations: ['001-initial-migration', '003-new-migration'],
+        });
+      });
+    });
   });
 
   describe('getMigrationsToRun', () => {

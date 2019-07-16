@@ -117,7 +117,15 @@ export default function persistStore(store, {
         ? _.omit(_.pick(state, whitelist), blacklist)
         : _.omit(state, blacklist);
 
-      storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
+      const appliedMigrations = migrations
+        ? migrations.filter(migration => migration.up).map(migration => migration.name)
+        : undefined; // eslint-disable-line no-undefined
+
+      storage.setItem(key, serialize({
+        persistedState: subset,
+        saveDate: moment().valueOf(),
+        migrations: appliedMigrations,
+      }));
     };
 
     const throttledSubscribe = _.throttle(saveState, throttle, {
