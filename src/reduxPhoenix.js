@@ -29,6 +29,53 @@ function transform(map, state) {
 }
 
 /**
+ * get number of migrations that have been previously applied
+ *
+ * @param {array} appliedMigrations names of migrations that has been succesfully applied
+ * @param {*} migrationsToApply list of migrations that should be run
+ * @return {number} number of migrations that have been previously applied
+ */
+function getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply) {
+  const { index } = appliedMigrations.reduce((result, migrationName, index) => {
+    if (result.isDifferent) {
+      return result;
+    }
+    if (migrationsToApply[index] && migrationsToApply[index].name === migrationName) {
+      return { index: result.index + 1, isDifferent: false };
+    }
+    return { index: result.index, isDifferent: true };
+  }, { index: 0, isDifferent: false });
+
+  return index;
+}
+
+/**
+ * get functions from migrations list that should be run before rehydrating
+ *
+ * @param {array} appliedMigrations names of migrations that has been succesfully applied
+ * @param {array} migrations list of migrations that should be run on old versions of state
+ * @return {array} array of functions from migrations that should be run
+ */
+export function getMigrationsToRun(appliedMigrations = [], migrations) {
+  const migrationsToApply = migrations.filter(migration => migration.up && migration.name);
+
+  const numberOfAppliedMigrations = getNumberOfAppliedMigrations(appliedMigrations, migrationsToApply);
+
+  const migrationsToRevert = appliedMigrations
+    .slice(numberOfAppliedMigrations)
+    .reverse()
+    .map(migrationName => migrations.find(({ name }) => name === migrationName) || {})
+    .filter(migration => migration.down && migration.name)
+    .map(migration => migration.down);
+
+  const migrationsToRun = migrationsToApply
+    .slice(numberOfAppliedMigrations)
+    .map(migration => migration.up);
+
+  return migrationsToRevert.concat(migrationsToRun);
+}
+
+/**
  * Persist store
  *
  * @export
@@ -47,17 +94,24 @@ export default function persistStore(store, {
   map = {},
   disabled = false,
   throttle = 0,
+  migrations = null,
 } = {}) {
   return Promise.resolve(storage.getItem(key)).then(persistedJson => {
     if (disabled) {
       return store;
     }
     const persistedValue = deserialize(persistedJson);
-    const { persistedState, saveDate } = persistedValue || {};
+    const { persistedState, saveDate, migrations: appliedMigrations } = persistedValue || {};
     let state = persistedState;
     if (expireDate && moment(saveDate).add(...expireDate).isBefore(moment())) {
-      state = {};
+      state = null;
     }
+
+    if (state && migrations) {
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+      state = migrationsToRun.reduce((state, migration) => migration(state), state);
+    }
+
     const persistedStateToMerge = whitelist
       ? _.omit(_.pick(state, whitelist), blacklist)
       : _.omit(state, blacklist);
@@ -73,7 +127,15 @@ export default function persistStore(store, {
         ? _.omit(_.pick(state, whitelist), blacklist)
         : _.omit(state, blacklist);
 
-      storage.setItem(key, serialize({ persistedState: subset, saveDate: moment().valueOf() }));
+      const appliedMigrations = migrations
+        ? migrations.filter(migration => migration.up && migration.name).map(migration => migration.name)
+        : undefined; // eslint-disable-line no-undefined
+
+      storage.setItem(key, serialize({
+        persistedState: subset,
+        saveDate: moment().valueOf(),
+        migrations: appliedMigrations,
+      }));
     };
 
     const throttledSubscribe = _.throttle(saveState, throttle, {

@@ -1,4 +1,4 @@
-import persistStore, { autoRehydrate, REHYDRATE } from 'reduxPhoenix';
+import persistStore, { autoRehydrate, REHYDRATE, getMigrationsToRun } from 'reduxPhoenix';
 import moment from 'moment';
 import sinon from 'sinon';
 
@@ -334,6 +334,7 @@ describe('persistStore', () => {
         }, 200);
       });
     });
+
     it('should call setItem twice if if two dispatch is called outside the throttle time', () => {
       const store = {
         dispatch: jest.fn(),
@@ -355,6 +356,180 @@ describe('persistStore', () => {
           expect(storage.setItem).toHaveBeenCalledTimes(2);
         }, 200);
       });
+    });
+
+    it('should run migrations that are missing in the persistedState', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+      };
+      const storage = {
+        getItem: () => JSON.stringify({ persistedState: { state: 'persistedState' }, migrations: ['001-initial-migration'] }),
+        setItem: jest.fn(),
+      };
+      const migrations = [
+        {
+          name: '001-initial-migration',
+          up: state => Object.assign({}, state, { newField: 'newFieldValue' }),
+          down: state => state,
+        },
+        {
+          name: '002-missing-migration',
+          up: state => Object.assign({}, state, { anotherNewField: 'newValue' }),
+          down: state => state,
+        },
+      ];
+
+      return persistStore(store, { storage, migrations }).then(store => {
+        expect(store.dispatch.mock.calls[0][0]).toEqual({
+          type: REHYDRATE,
+          payload: { state: 'persistedState', anotherNewField: 'newValue' },
+        });
+      });
+    });
+
+    it('should save applied migrations', () => {
+      const store = {
+        dispatch: jest.fn(),
+        subscribe: jest.fn(),
+        getState: () => ({ actualState: 'actualState' }),
+      };
+      const storage = {
+        getItem: () => Promise.resolve(JSON.stringify({ persistedState: { state: 'persistedState' } })),
+        setItem: jest.fn(),
+      };
+      const migrations = [
+        {
+          name: '001-initial-migration',
+          up: state => state,
+          down: state => state,
+        },
+        {
+          name: '002-reverted',
+          down: state => state,
+        },
+        {
+          name: '003-new-migration',
+          up: state => state,
+          down: state => state,
+        },
+      ];
+
+      return persistStore(store, { storage, migrations }).then(store => {
+        store.subscribe.mock.calls[0][0]();
+        expect(storage.setItem.mock.calls[0][0]).toEqual('redux');
+        expect(JSON.parse(storage.setItem.mock.calls[0][1])).toEqual({
+          persistedState: {
+            actualState: 'actualState',
+          },
+          saveDate: moment().valueOf(),
+          migrations: ['001-initial-migration', '003-new-migration'],
+        });
+      });
+    });
+  });
+
+  describe('getMigrationsToRun', () => {
+    it('should return an empty array when all migrations has been applied', () => {
+      const migrations = [
+        {
+          name: '001-initial',
+          up: state => state,
+          down: state => state,
+        },
+      ];
+      const appliedMigrations = ['001-initial'];
+
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+
+      expect(migrationsToRun).toEqual([]);
+    });
+
+    it('should return an array with one migration that has been added', () => {
+      const migrations = [
+        {
+          name: '001-first',
+          up: 'Apply first migration',
+          down: 'Revert first migration',
+        },
+        {
+          name: '002-second',
+          up: 'Apply the second migration',
+          down: 'Revert the second migration',
+        },
+      ];
+      const appliedMigrations = ['001-first'];
+
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+
+      expect(migrationsToRun).toEqual(['Apply the second migration']);
+    });
+
+    it('should return an array with one migration that has been reverted', () => {
+      const migrations = [
+        {
+          name: '001-initial',
+          up: 'Apply initial migration',
+          down: 'Revert initial migration',
+        },
+        {
+          name: '002-reverted',
+          down: 'Revert the second migration',
+        },
+      ];
+      const appliedMigrations = ['001-initial', '002-reverted'];
+
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+
+      expect(migrationsToRun).toEqual(['Revert the second migration']);
+    });
+
+    it('should return an array with combined migrations beginning from one that has been reverted', () => {
+      const migrations = [
+        {
+          name: '001-initial',
+          up: 'Apply initial migration',
+          down: 'Revert initial migration',
+        },
+        {
+          name: '002-reverted',
+          down: 'Revert the second migration',
+        },
+        {
+          name: '003-applied-previously',
+          up: 'Apply the third migration',
+          down: 'Revert the third migration',
+        },
+      ];
+      const appliedMigrations = ['001-initial', '002-reverted', '003-applied-previously'];
+
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+
+      expect(migrationsToRun).toEqual(['Revert the third migration', 'Revert the second migration', 'Apply the third migration']);
+    });
+
+    it('should return an empty array when reverted migrations has not been applied', () => {
+      const migrations = [
+        {
+          name: '001-initial',
+          up: 'Apply initial migration',
+          down: 'Revert initial migration',
+        },
+        {
+          name: '002-reverted',
+          down: 'Revert the second migration',
+        },
+        {
+          name: '003-applied-previously',
+          up: 'Apply the third migration',
+          down: 'Revert the third migration',
+        },
+      ];
+      const appliedMigrations = ['001-initial', '003-applied-previously'];
+
+      const migrationsToRun = getMigrationsToRun(appliedMigrations, migrations);
+
+      expect(migrationsToRun).toEqual([]);
     });
   });
 });

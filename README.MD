@@ -164,3 +164,41 @@ persistStore(store, {
 ); // The state will be save maximum one time / 1000 ms
 
 ```
+
+## Migrations
+
+You can pass migrations that will be run just before rehydrating redux store. This allows to modify the old version of state that could be persisted previously, to the
+new version that is used currently. Note when you want to revert the migration that might be applied previously just omit the `up` method in the migration object.
+
+```javascript
+const migrations = [
+  {
+    name: '001-initial-migration',
+    up: state => ({ ...state, { newField: 'newFieldValue' } }),
+    down: state => state,
+  },
+  {
+    name: '002-missing-migration',
+    up: state => ({ ...state, { anotherNewField: 'newValue' } }),
+    down: state => _.omit(state, 'anotherNewField'),
+  },
+];
+
+persistStore(store, { migrations }); // There will be applied missing migrations from 2 passed
+```
+
+```javascript
+const migrations = [
+  {
+    name: '001-initial-migration',
+    up: state => ({ ...state, { newField: 'newFieldValue' } }),
+    down: state => state,
+  },
+  {
+    name: '002-reverted',
+    down: state => state,
+  },
+];
+
+persistStore(store, { migrations }); // There will be applied migration 001 (if not present) and reverted 002 (if present)
+```
